@@ -1,7 +1,7 @@
 const express = require('express')
 const Users = require('../users/usersModel')
 const bcrypt = require('bcryptjs');
-
+const {restrict} = require('../middleware/restrict')
 const router = express.Router()
 
 router.post('/register', async (req,res, next)=>{
@@ -27,9 +27,14 @@ router.post('/login', async(req,res,next)=>{
       const user = await Users.findBy({ username }).first()
       const passwordValid = await bcrypt.compare(password, user.password)
       if(!user || !passwordValid){
-         return res.status(401).json({errorMessage:'You shall not pass!'})
+         return res.status(401).json(
+            {errorMessage:'You shall not pass!'})
 
       }
+
+    req.session.user  = user
+
+
       res.json({message: `Logged in, ${user.username}`})
 
    }
